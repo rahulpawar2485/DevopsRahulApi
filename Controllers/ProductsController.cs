@@ -22,7 +22,7 @@ namespace InMemoryCrudApi.Controllers
             var product = ProductRepository.GetById(id);
             if (product == null)
                 return NotFound();
-
+            //Will give all the related active products based on id
             return Ok(product);
         }
 
