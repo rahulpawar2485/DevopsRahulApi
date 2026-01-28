@@ -1,55 +1,38 @@
 name: .NET 9 Web API CI/CD to IIS
 
-# Trigger pipeline on push to main branch
 on:
   push:
-    branches:
-      - main
+    branches: [main]  # Trigger on main branch
 
 jobs:
   build-and-deploy:
     runs-on: self-hosted
-
     steps:
-    # Step 1: Checkout code
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # Step 2: Setup .NET 9
-    - name: Setup .NET 9
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.0.x
 
-    # Step 3: Restore NuGet packages
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Restore dependencies
+        run: dotnet restore
 
-    # Step 4: Build the project
-    - name: Build
-      run: dotnet build -c Release --no-restore
+      - name: Build project
+        run: dotnet build --configuration Release
 
-    # Step 5: Publish the project
-    - name: Publish
-      run: dotnet publish -c Release -o publish
+      - name: Publish project
+        run: dotnet publish -c Release -o published
 
-    # Step 6: Stop IIS Site
-    - name: Stop IIS Site
-      shell: powershell
-      run: |
-        Import-Module WebAdministration
-        Stop-WebSite -Name "InMemoryCrudApi"
-
-    # Step 7: Deploy published files to IIS
-    - name: Deploy to IIS
-      shell: powershell
-      run: |
-        Remove-Item "C:\inetpub\InMemoryCrudApi\*" -Recurse -Force -ErrorAction SilentlyContinue
-        Copy-Item "publish\*" "C:\inetpub\InMemoryCrudApi" -Recurse -Force
-
-    # Step 8: Start IIS Site
-    - name: Start IIS Site
-      shell: powershell
-      run: |
-        Import-Module WebAdministration
-        Start-WebSite -Name "InMemoryCrudApi"
+      - name: Deploy to IIS
+        run: |
+          $iisPath = "C:\inetpub\InMemoryCrudApi"
+          # Remove old files
+          Remove-Item -Recurse -Force "$iisPath\*"
+          # Copy new files
+          Copy-Item -Recurse -Force "published\*" $iisPath\
+          # Optionally recycle app pool (replace 'InMemoryCrudApiAppPool' with your App Pool)
+          Import-Module WebAdministration
+          Restart-WebAppPool -Name 'InMemoryCrudApiAppPool'
+        shell: powershell
