@@ -8,6 +8,9 @@ D:\Create Rest API In Memory\InMemoryCrudApi\bin\Debug\net9.0\InMemoryCrudApi.dl
 D:\Create Rest API In Memory\InMemoryCrudApi\bin\Debug\net9.0\InMemoryCrudApi.pdb
 D:\Create Rest API In Memory\InMemoryCrudApi\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
 D:\Create Rest API In Memory\InMemoryCrudApi\bin\Debug\net9.0\Microsoft.OpenApi.dll
+D:\Create Rest API In Memory\InMemoryCrudApi\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\Create Rest API In Memory\InMemoryCrudApi\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\Create Rest API In Memory\InMemoryCrudApi\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\InMemoryCrudApi.csproj.AssemblyReference.cache
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\rpswa.dswa.cache.json
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\InMemoryCrudApi.GeneratedMSBuildEditorConfig.editorconfig
@@ -16,6 +19,7 @@ D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\InMemoryCrudApi.As
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\InMemoryCrudApi.csproj.CoreCompileInputs.cache
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\InMemoryCrudApi.MvcApplicationPartsAssemblyInfo.cs
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\InMemoryCrudApi.MvcApplicationPartsAssemblyInfo.cache
+D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\InMemoryCrudApi.sourcelink.json
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\rjimswa.dswa.cache.json
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 D:\Create Rest API In Memory\InMemoryCrudApi\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InMemoryCrudApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d0e3b7216f31824062b3c0c59db6e5082522f58")]
 [assembly: System.Reflection.AssemblyProductAttribute("InMemoryCrudApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InMemoryCrudApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
