@@ -1,38 +1,64 @@
-name: .NET 9 Web API CI/CD to IIS
+name: .NET 9 API CI/CD to IIS
 
 on:
   push:
-    branches: [main]  # Trigger on main branch
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
     runs-on: self-hosted
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    # Step 1: Checkout repository
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup .NET 9 SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 9.0.x
+    # Step 2: Setup .NET 9
+    - name: Setup .NET 9 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore
+    # Step 3: Restore dependencies
+    - name: Restore dependencies
+      run: dotnet restore
 
-      - name: Build project
-        run: dotnet build --configuration Release
+    # Step 4: Build the project
+    - name: Build project
+      run: dotnet build --configuration Release --no-restore
 
-      - name: Publish project
-        run: dotnet publish -c Release -o published
+    # Step 5: Run tests (optional)
+    - name: Run tests
+      run: dotnet test --no-restore --verbosity normal
 
-      - name: Deploy to IIS
-        run: |
-          $iisPath = "C:\inetpub\InMemoryCrudApi"
-          # Remove old files
-          Remove-Item -Recurse -Force "$iisPath\*"
-          # Copy new files
-          Copy-Item -Recurse -Force "published\*" $iisPath\
-          # Optionally recycle app pool (replace 'InMemoryCrudApiAppPool' with your App Pool)
-          Import-Module WebAdministration
-          Restart-WebAppPool -Name 'InMemoryCrudApiAppPool'
-        shell: powershell
+    # Step 6: Publish project to a temporary folder
+    - name: Publish project
+      run: dotnet publish -c Release -o ${{ github.workspace }}\publish
+
+    # Step 7: Deploy to IIS
+    - name: Copy files to IIS
+      run: |
+        $source = "${{ github.workspace }}\publish\*"
+        $destination = "C:\inetpub\MyWebApi\"
+        Write-Host "Copying files from $source to $destination"
+        Remove-Item -Path $destination\* -Recurse -Force
+        Copy-Item -Path $source -Destination $destination -Recurse -Force
+        # Restart IIS App Pool
+        Import-Module WebAdministration
+        Restart-WebAppPool -Name "MyWebApiAppPool"
+      shell: powershell
+
+    # Step 8: Optional health check (Swagger)
+    - name: Test Swagger endpoint
+      run: |
+        $url = "http://localhost:5163/swagger/index.html"
+        try {
+          $resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
+          if ($resp.StatusCode -ne 200) { throw "Swagger UI not reachable" }
+        } catch {
+          Write-Error "Swagger UI check failed: $_"
+          exit 1
+        }
+      shell: powershell
