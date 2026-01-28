@@ -38,18 +38,18 @@ jobs:
       shell: powershell
       run: |
         Import-Module WebAdministration
-        Stop-WebSite -Name "MyWebApi"
+        Stop-WebSite -Name "InMemoryCrudApi"
 
     # Step 7: Deploy published files to IIS
     - name: Deploy to IIS
       shell: powershell
       run: |
-        Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
-        Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
+        Remove-Item "C:\inetpub\InMemoryCrudApi\*" -Recurse -Force -ErrorAction SilentlyContinue
+        Copy-Item "publish\*" "C:\inetpub\InMemoryCrudApi" -Recurse -Force
 
     # Step 8: Start IIS Site
     - name: Start IIS Site
       shell: powershell
       run: |
         Import-Module WebAdministration
-        Start-WebSite -Name "MyWebApi"
+        Start-WebSite -Name "InMemoryCrudApi"
