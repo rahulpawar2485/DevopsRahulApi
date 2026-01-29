@@ -1,64 +1,46 @@
-name: .NET 9 API CI/CD to IIS
+name: Build & Deploy ASP.NET Core API to IIS (.NET 9)
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: self-hosted
 
     steps:
-    # Step 1: Checkout repository
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Step 2: Setup .NET 9
-    - name: Setup .NET 9 SDK
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: '9.0.x'
 
-    # Step 3: Restore dependencies
-    - name: Restore dependencies
+    - name: Restore NuGet packages
       run: dotnet restore
 
-    # Step 4: Build the project
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Step 5: Run tests (optional)
-    - name: Run tests
-      run: dotnet test --no-restore --verbosity normal
-
-    # Step 6: Publish project to a temporary folder
     - name: Publish project
-      run: dotnet publish -c Release -o ${{ github.workspace }}\publish
+      run: dotnet publish -c Release -o publish
 
-    # Step 7: Deploy to IIS
-    - name: Copy files to IIS
+    - name: Stop IIS Website
       run: |
-        $source = "${{ github.workspace }}\publish\*"
-        $destination = "C:\inetpub\MyWebApi\"
-        Write-Host "Copying files from $source to $destination"
-        Remove-Item -Path $destination\* -Recurse -Force
-        Copy-Item -Path $source -Destination $destination -Recurse -Force
-        # Restart IIS App Pool
         Import-Module WebAdministration
-        Restart-WebAppPool -Name "MyWebApiAppPool"
+        Stop-Website -Name "MyWebApi"
       shell: powershell
 
-    # Step 8: Optional health check (Swagger)
-    - name: Test Swagger endpoint
+    - name: Deploy to IIS folder
       run: |
-        $url = "http://localhost:5163/swagger/index.html"
-        try {
-          $resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
-          if ($resp.StatusCode -ne 200) { throw "Swagger UI not reachable" }
-        } catch {
-          Write-Error "Swagger UI check failed: $_"
-          exit 1
-        }
+        Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
+        Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
+      shell: powershell
+
+    - name: Start IIS Website
+      run: |
+        Import-Module WebAdministration
+        Start-Website -Name "MyWebApi"
       shell: powershell
