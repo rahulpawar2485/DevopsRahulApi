@@ -27,20 +27,25 @@ jobs:
     - name: Publish project
       run: dotnet publish -c Release -o publish
 
-    - name: Stop IIS Website
-      run: |
-        Import-Module WebAdministration
+   - name: Stop IIS Website
+  shell: powershell
+  run: |
+    Import-Module WebAdministration
+    if (Test-Path "IIS:\Sites\MyWebApi") {
         Stop-Website -Name "MyWebApi"
-      shell: powershell
+    }
 
-    - name: Deploy to IIS folder
-      run: |
-        Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
-        Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
-      shell: powershell
+- name: Deploy to IIS folder
+  shell: powershell
+  run: |
+    if (!(Test-Path "C:\inetpub\MyWebApi")) {
+        New-Item -ItemType Directory -Path "C:\inetpub\MyWebApi"
+    }
+    Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
 
-    - name: Start IIS Website
-      run: |
-        Import-Module WebAdministration
-        Start-Website -Name "MyWebApi"
-      shell: powershell
+- name: Start IIS Website
+  shell: powershell
+  run: |
+    Import-Module WebAdministration
+    Start-Website -Name "MyWebApi"
