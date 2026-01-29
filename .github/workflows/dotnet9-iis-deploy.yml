@@ -33,10 +33,18 @@ jobs:
         Import-Module WebAdministration
         Stop-Website -Name "MyWebApi"
 
-    - name: Deploy to IIS Folder
+    - name: Clean and Deploy to IIS Folder
       shell: powershell
       run: |
+        # Ensure folder exists
+        if (!(Test-Path "C:\inetpub\MyWebApi")) {
+            New-Item -ItemType Directory -Path "C:\inetpub\MyWebApi"
+        }
+
+        # Clean old files
         Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
+
+        # Copy new publish output
         Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
 
     - name: Start IIS Site
