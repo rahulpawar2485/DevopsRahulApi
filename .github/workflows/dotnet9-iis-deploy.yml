@@ -1,32 +1,46 @@
-name: Deploy API to Local IIS
+name: Deploy ASP.NET Core API to Local IIS
 
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
 
-      - run: dotnet restore
-      - run: dotnet build -c Release
-      - run: dotnet publish -c Release -o publish
+    - name: Restore
+      run: dotnet restore
 
-      - name: IIS Deploy
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Stop-Website "MyWebApi"
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
 
-          Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
-          Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
+    - name: Publish
+      run: dotnet publish -c Release -o publish
 
-          Start-Website "MyWebApi"
+    - name: Stop IIS Site
+      shell: powershell
+      run: |
+        Import-Module WebAdministration
+        Stop-Website -Name "MyWebApi"
+
+    - name: Deploy to IIS Folder
+      shell: powershell
+      run: |
+        Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
+        Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
+
+    - name: Start IIS Site
+      shell: powershell
+      run: |
+        Import-Module WebAdministration
+        Start-Website -Name "MyWebApi"
