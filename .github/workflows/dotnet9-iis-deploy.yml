@@ -1,25 +1,52 @@
-    - name: Publish project
-      run: dotnet publish -c Release -o publish
+name: Build & Deploy ASP.NET Core API to IIS (.NET 9)
 
-    - name: Stop IIS Website
-      shell: powershell
-      run: |
-        Import-Module WebAdministration
-        if (Test-Path "IIS:\Sites\MyWebApi") {
-            Stop-Website -Name "MyWebApi"
-        }
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-    - name: Deploy to IIS folder
-      shell: powershell
-      run: |
-        if (!(Test-Path "C:\inetpub\MyWebApi")) {
-            New-Item -ItemType Directory -Path "C:\inetpub\MyWebApi"
-        }
-        Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
-        Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
 
-    - name: Start IIS Website
-      shell: powershell
-      run: |
-        Import-Module WebAdministration
-        Start-Website -Name "MyWebApi"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish project
+        run: dotnet publish -c Release -o publish
+
+      - name: Stop IIS Website
+        shell: powershell
+        run: |
+          Import-Module WebAdministration
+          if (Test-Path "IIS:\Sites\MyWebApi") {
+              Stop-Website -Name "MyWebApi"
+          }
+
+      - name: Deploy to IIS folder
+        shell: powershell
+        run: |
+          if (!(Test-Path "C:\inetpub\MyWebApi")) {
+              New-Item -ItemType Directory -Path "C:\inetpub\MyWebApi"
+          }
+          Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
+          Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
+
+      - name: Start IIS Website
+        shell: powershell
+        run: |
+          Import-Module WebAdministration
+          Start-Website -Name "MyWebApi"
