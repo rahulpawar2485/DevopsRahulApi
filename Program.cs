@@ -16,11 +16,7 @@ app.UseSwaggerUI(c =>
 
 app.MapControllers();
 
-var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddControllers();
-
-var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.MapControllers();
