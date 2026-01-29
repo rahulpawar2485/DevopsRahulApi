@@ -6,7 +6,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// ✅ Enable Swagger in IIS / Production
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -15,4 +15,15 @@ app.UseSwaggerUI(c =>
 });
 
 app.MapControllers();
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+app.MapControllers();
+
+
 app.Run();
