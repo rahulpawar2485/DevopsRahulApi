@@ -1,4 +1,4 @@
-name: Deploy ASP.NET Core API to Local IIS
+name: Deploy ASP.NET Core API to Local IIS (.NET 9)
 
 on:
   push:
@@ -13,19 +13,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup .NET
+    - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Restore
       run: dotnet restore
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-
-    - name: Publish
-      run: dotnet publish -c Release -o publish
+    - name: Publish (IIS-ready)
+      run: |
+        dotnet publish InMemoryCrudApi.csproj `
+          -c Release `
+          -o publish `
+          --runtime win-x64 `
+          --self-contained false
 
     - name: Stop IIS Site
       shell: powershell
@@ -36,16 +38,14 @@ jobs:
     - name: Clean and Deploy to IIS Folder
       shell: powershell
       run: |
-        # Ensure folder exists
-        if (!(Test-Path "C:\inetpub\MyWebApi")) {
-            New-Item -ItemType Directory -Path "C:\inetpub\MyWebApi"
+        $dest = "C:\inetpub\MyWebApi"
+
+        if (!(Test-Path $dest)) {
+            New-Item -ItemType Directory -Path $dest
         }
 
-        # Clean old files
-        Remove-Item "C:\inetpub\MyWebApi\*" -Recurse -Force -ErrorAction SilentlyContinue
-
-        # Copy new publish output
-        Copy-Item "publish\*" "C:\inetpub\MyWebApi" -Recurse -Force
+        Remove-Item "$dest\*" -Recurse -Force -ErrorAction SilentlyContinue
+        Copy-Item "publish\*" $dest -Recurse -Force
 
     - name: Start IIS Site
       shell: powershell
